@@ -38,7 +38,11 @@ void prepareScreen(){
 void mainLoop(){
     prepareScreen();
     handleInput();
-    
+
+    SDL_Rect square = { 0, 0, 100, 100 };
+    SDL_SetRenderDrawColor(window.renderer, 0xFF, 0x00, 0x00, 0xFF);
+    SDL_RenderFillRect(window.renderer, &square);
+
     SDL_RenderPresent(window.renderer);
     
     // TODO: timer
