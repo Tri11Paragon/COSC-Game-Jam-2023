@@ -23,7 +23,7 @@ else()
         message("Building for Release")
     endif ()
 
-    find_package(SDL)
+    find_package(SDL2)
 
     include_directories(${SDL_INCLUDE_DIRS})
 endif()
