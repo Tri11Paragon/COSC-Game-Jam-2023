@@ -125,3 +125,7 @@ void Window::sync(double target) const {
 double Window::delta() {
     return frame_delta;
 }
+
+double Window::deltaSeconds() {
+    return frame_delta / 1000.0;
+}

@@ -22,6 +22,7 @@ struct Window {
     void sync(double target) const;
     
     static double delta();
+    static double deltaSeconds();
     
     static bool keyDown(SDL_Keycode key);
     static bool keyState(SDL_Keycode key);
