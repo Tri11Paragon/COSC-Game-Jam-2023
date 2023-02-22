@@ -1,11 +1,7 @@
 #include <iostream>
 #include <blt/std/logging.h>
 
-#include <cstdio>
-#include <SDL2/SDL.h>
-
 #include <window.h>
-#include <image/image.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -47,32 +43,18 @@ Player guy(100, 100);
 
 float count = 0.0f;
 
-void handleInput (){
-    SDL_Event event;
-    
-    while (SDL_PollEvent(&event)){
-        switch (event.type) {
-            case SDL_QUIT:
-                window.running = false;
-                BLT_INFO("Goodbye!");
-                std::exit(0);
-                break;
-            default:
-                break;
-        }
-    }
+void init(){
+
 }
 
 void prepareScreen(){
     SDL_SetRenderDrawColor(window.renderer, 96, 128, 255, 255);
     SDL_RenderClear(window.renderer);
-
-
 }
 
 void mainLoop(){
     prepareScreen();
-    handleInput();
+    window.handleInput();
 
 //    guy.x = 50 * sin((float) count) + 100;
 //    guy.y = 50 * cos((float) count) + 100;
@@ -126,7 +108,7 @@ int main() {
         return 5;
     }
 
-    guy.setTexture();
+    init();
 
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(mainLoop, 0, true);
