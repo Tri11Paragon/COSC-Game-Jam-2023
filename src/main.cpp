@@ -6,6 +6,9 @@
 
 #include <window.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <image/stb_image.h>
+
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -64,6 +67,8 @@ int main() {
     SDL_GetVersion(&version);
     
     BLT_INFO("Using SDL version %d.%d.%d", version.major, version.minor, version.patch);
+    
+    SDL_CreateTexture()
     
     window.WIDTH = 1440;
     window.HEIGHT = 720;
