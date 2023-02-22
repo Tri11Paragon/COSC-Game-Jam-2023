@@ -37,7 +37,7 @@ file(GLOB_RECURSE files "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 include_directories(include/)
 
-add_executable(COSC_Game_Jam_2023 ${files} include/window.h)
+add_executable(COSC_Game_Jam_2023 ${files} include/window.h include/image/image.h src/image/image.cpp)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 

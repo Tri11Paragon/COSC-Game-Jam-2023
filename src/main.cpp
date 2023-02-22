@@ -6,9 +6,6 @@
 
 #include <window.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <image/stb_image.h>
-
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
@@ -19,10 +16,7 @@ class Player {
 public:
     int x;
     int y;
-    Player(int x, int y): x(x), y(y) {
-//        this->x = x;
-//        this->y = y;
-    }
+    Player(int x, int y): x(x), y(y) {}
 private:
     unsigned int imagedata[4] = {0xff0000ffu, 0x00ff00ffu, 0x0000ffffu, 0xffffffffu};
     SDL_Rect src = {0, 0, 2, 2};
@@ -100,8 +94,6 @@ int main() {
     SDL_GetVersion(&version);
     
     BLT_INFO("Using SDL version %d.%d.%d", version.major, version.minor, version.patch);
-    
-    SDL_CreateTexture()
     
     window.WIDTH = 1440;
     window.HEIGHT = 720;
