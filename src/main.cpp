@@ -2,6 +2,7 @@
 #include <blt/std/logging.h>
 
 #include <window.h>
+#include "image/image.h"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -47,13 +48,8 @@ void init(){
 
 }
 
-void prepareScreen(){
-    SDL_SetRenderDrawColor(window.renderer, 96, 128, 255, 255);
-    SDL_RenderClear(window.renderer);
-}
-
 void mainLoop(){
-    prepareScreen();
+    window.prepare();
     window.handleInput();
 
 //    guy.x = 50 * sin((float) count) + 100;
@@ -61,11 +57,10 @@ void mainLoop(){
 //    count += 0.1f;
     guy.update();
     guy.draw();
-
-    SDL_RenderPresent(window.renderer);
     
-    // TODO: timer
-    SDL_Delay(16);
+    window.sync(1000.0 / 60.0);
+    
+    BLT_TRACE("Delta %f", Window::delta());
 }
 
 int main() {

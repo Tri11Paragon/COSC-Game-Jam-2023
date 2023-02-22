@@ -3,9 +3,11 @@
 //
 #include <window.h>
 #include "blt/std/logging.h"
+#include <blt/std/time.h>
 #include <unordered_map>
 #include <vector>
 #include <algorithm>
+#include <thread>
 
 std::unordered_map<int, bool> keys {};
 std::unordered_map<int, bool> mouse {};
@@ -16,13 +18,11 @@ std::unordered_map<int, bool> mouse_state {};
 std::vector<IKeyEventListener*> keyListeners;
 std::vector<IMouseEventListener*> mouseListeners;
 
+auto last_frame_time = blt::system::getCurrentTimeNanoseconds();
+double frame_delta = 0;
+
 void Window::handleInput() {
     SDL_Event event;
-    
-    for (const auto& item : key_state)
-        key_state[item.first] = false;
-    for (const auto& button : mouse_state)
-        mouse_state[button.first] = false;
     
     while (SDL_PollEvent(&event)){
         switch (event.type) {
@@ -93,4 +93,35 @@ void Window::deleteListener(IMouseEventListener* listener) {
     auto position = std::find(mouseListeners.begin(), mouseListeners.end(), listener);
     if (position != mouseListeners.end())
         mouseListeners.erase(position);
+}
+
+void Window::prepare() const {
+    SDL_SetRenderDrawColor(renderer, 96, 128, 255, 255);
+    SDL_RenderClear(renderer);
+}
+
+void Window::sync(double target) const {
+    SDL_RenderPresent(renderer);
+    
+    for (const auto& item : key_state)
+        key_state[item.first] = false;
+    for (const auto& button : mouse_state)
+        mouse_state[button.first] = false;
+    
+    auto current_frame_time = blt::system::getCurrentTimeNanoseconds();
+    auto frame_difference = current_frame_time - last_frame_time;
+    auto target_nanoseconds = (long)(target * 1000000);
+    
+    if (frame_difference < target_nanoseconds) {
+        std::this_thread::sleep_for(std::chrono::nanoseconds(target_nanoseconds - frame_difference));
+        current_frame_time = blt::system::getCurrentTimeNanoseconds();
+        frame_difference = current_frame_time - last_frame_time;
+    }
+    
+    frame_delta = (double)frame_difference / 1000000.0;
+    last_frame_time = current_frame_time;
+}
+
+double Window::delta() {
+    return frame_delta;
 }

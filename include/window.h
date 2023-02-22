@@ -17,7 +17,12 @@ struct Window {
     SDL_Renderer* renderer = nullptr;
     SDL_Window* window = nullptr;
     
+    void prepare() const;
     void handleInput ();
+    void sync(double target) const;
+    
+    static double delta();
+    
     static bool keyDown(SDL_Keycode key);
     static bool keyState(SDL_Keycode key);
     static bool mouseDown(int button);
