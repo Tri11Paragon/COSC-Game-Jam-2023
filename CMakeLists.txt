@@ -25,7 +25,9 @@ else()
 
     find_package(SDL2)
 
-    include_directories(${SDL_INCLUDE_DIRS})
+    include_directories(${SDL2_INCLUDE_DIRS})
+
+    message("Include: ${SDL2_INCLUDE_DIRS} with ${SDL2_FOUND} and ${SDL2_LIBRARIES}")
 endif()
 
 
@@ -35,7 +37,7 @@ file(GLOB_RECURSE files "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 include_directories(include/)
 
-add_executable(COSC_Game_Jam_2023 ${files})
+add_executable(COSC_Game_Jam_2023 ${files} include/window.h)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/)
 
@@ -44,5 +46,5 @@ target_link_libraries(COSC_Game_Jam_2023 BLT)
 if (USE_EXTRAS)
     set_target_properties(COSC_Game_Jam_2023 PROPERTIES LINK_FLAGS "-sMAX_WEBGL_VERSION=2 -s ASSERTIONS=1 -sUSE_SDL=2 --preload-file 'assets'")
 else()
-    target_link_libraries(COSC_Game_Jam_2023 PRIVATE ${SDL_LIBRARIES})
+    target_link_libraries(COSC_Game_Jam_2023 ${SDL2_LIBRARIES})
 endif()

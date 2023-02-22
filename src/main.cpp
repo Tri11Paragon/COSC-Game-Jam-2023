@@ -1,41 +1,95 @@
 #include <iostream>
+#include <blt/std/logging.h>
 
 #include <cstdio>
 #include <SDL2/SDL.h>
+
+#include <window.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
 
-int main() {
-    printf("hello, world!\n");
-    
-    SDL_Init(SDL_INIT_VIDEO);
-    SDL_Surface *screen = SDL_SetVideoMode(256, 256, 32, SDL_SWSURFACE);
+Window window {};
 
-#ifdef TEST_SDL_LOCK_OPTS
-    EM_ASM("SDL.defaults.copyOnLock = false; SDL.defaults.discardOnLock = true; SDL.defaults.opaqueFrontBuffer = false;");
-#endif
+void handleInput (){
+    SDL_Event event;
     
-    if (SDL_MUSTLOCK(screen)) SDL_LockSurface(screen);
-    for (int i = 0; i < 256; i++) {
-        for (int j = 0; j < 256; j++) {
-#ifdef TEST_SDL_LOCK_OPTS
-            // Alpha behaves like in the browser, so write proper opaque pixels.
-      int alpha = 255;
-#else
-            // To emulate native behavior with blitting to screen, alpha component is ignored. Test that it is so by outputting
-            // data (and testing that it does get discarded)
-            int alpha = (i+j) % 255;
-#endif
-            *((Uint32*)screen->pixels + i * 256 + j) = SDL_MapRGBA(screen->format, i, j, 255-i, alpha);
+    while (SDL_PollEvent(&event)){
+        switch (event.type) {
+            case SDL_QUIT:
+                window.running = false;
+                BLT_INFO("Goodbye!");
+                std::exit(0);
+                break;
+            default:
+                break;
         }
     }
-    if (SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
-    SDL_Flip(screen);
+}
+
+void prepareScreen(){
+    SDL_SetRenderDrawColor(window.renderer, 96, 128, 255, 255);
+    SDL_RenderClear(window.renderer);
     
-    printf("you should see a smoothly-colored square - no sharp lines but the square borders!\n");
-    printf("and here is some text that should be HTML-friendly: amp: |&| double-quote: |\"| quote: |'| less-than, greater-than, html-like tags: |<cheez></cheez>|\nanother line.\n");
+    
+}
+
+void mainLoop(){
+    prepareScreen();
+    handleInput();
+    
+    SDL_RenderPresent(window.renderer);
+    
+    // TODO: timer
+    SDL_Delay(16);
+}
+
+int main() {
+    auto logging_properties = blt::logging::LOG_PROPERTIES{true, true, true, "./"};
+    logging_properties.m_logFullPath = true;
+
+#ifdef __EMSCRIPTEN__
+    logging_properties = blt::logging::LOG_PROPERTIES{false, true, false, "./"};
+#endif
+    
+    blt::logging::init(logging_properties);
+    
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
+        BLT_FATAL("Unable to init SDL! (%s)", SDL_GetError());
+        return 0;
+    }
+    
+    SDL_version version;
+    SDL_GetVersion(&version);
+    
+    BLT_INFO("Using SDL version %d.%d.%d", version.major, version.minor, version.patch);
+    
+    window.WIDTH = 1440;
+    window.HEIGHT = 720;
+    
+    window.window = SDL_CreateWindow("Femboy Domination Fantasy XXL", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, window.WIDTH, window.HEIGHT, 0);
+    
+    if (!window.window){
+        BLT_FATAL("Unable to create window! (%s)", SDL_GetError());
+        return 2;
+    }
+    
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    
+    window.renderer = SDL_CreateRenderer(window.window, -1, SDL_RENDERER_ACCELERATED);
+    
+    if (!window.renderer) {
+        BLT_FATAL("Unable to create renderer! (%s)", SDL_GetError());
+        return 5;
+    }
+
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop(mainLoop, 0, true);
+#else
+    while(window.running)
+        mainLoop();
+#endif
     
     SDL_Quit();
     
