@@ -5,6 +5,7 @@
 #include <SDL2/SDL.h>
 
 #include <window.h>
+#include <image/image.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -16,24 +17,34 @@ class Player {
 public:
     int x;
     int y;
-    Player(int x, int y): x(x), y(y) {}
-private:
-    unsigned int imagedata[4] = {0xff0000ffu, 0x00ff00ffu, 0x0000ffffu, 0xffffffffu};
-    SDL_Rect src = {0, 0, 2, 2};
+    SDL_Rect src = {0, 0, 8, 8};
+    SDL_Rect dest;
+    SDL_Texture* texture;
+    Player(int x, int y): x(x), y(y) { }
 public:
+    void setTexture() {
+        SDL_Surface* surface = image::loadImage("assets/winuz.png")->surface;
+        this->texture = SDL_CreateTextureFromSurface(window.renderer, surface);
+        std::cout << SDL_GetError();
+    }
+    void update() {
+        dest = {this->x, this->y, 100, 100};
+    }
     void draw() {
         SDL_Rect square = { this->x, this->y, 100, 100 };
         SDL_SetRenderDrawColor(window.renderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderFillRect(window.renderer, &square);
 
+        /*
         SDL_Texture* texture = SDL_CreateTexture( window.renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, 2, 2 );
         SDL_UpdateTexture(texture, &src, &imagedata, 2);
-        SDL_Rect dest = {this->x, this->y, 100, 100};
-        SDL_RenderCopy(window.renderer, texture, &src, &dest);
+         */
+        SDL_RenderCopy(window.renderer, this->texture, &src, &dest);
     }
 };
 
 Player guy(100, 100);
+
 float count = 0.0f;
 
 void handleInput (){
@@ -63,9 +74,10 @@ void mainLoop(){
     prepareScreen();
     handleInput();
 
-    guy.x = 50 * sin((float) count) + 100;
-    guy.y = 50 * cos((float) count) + 100;
-    count += 0.1f;
+//    guy.x = 50 * sin((float) count) + 100;
+//    guy.y = 50 * cos((float) count) + 100;
+//    count += 0.1f;
+    guy.update();
     guy.draw();
 
     SDL_RenderPresent(window.renderer);
@@ -113,6 +125,8 @@ int main() {
         BLT_FATAL("Unable to create renderer! (%s)", SDL_GetError());
         return 5;
     }
+
+    guy.setTexture();
 
 #ifdef __EMSCRIPTEN__
     emscripten_set_main_loop(mainLoop, 0, true);
