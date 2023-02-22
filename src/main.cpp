@@ -16,18 +16,27 @@ class Player {
 public:
     int x;
     int y;
-    Player(int x, int y) {
-        this->x = x;
-        this->y = y;
+    Player(int x, int y): x(x), y(y) {
+//        this->x = x;
+//        this->y = y;
     }
+private:
+    unsigned int imagedata[4] = {0xff0000ffu, 0x00ff00ffu, 0x0000ffffu, 0xffffffffu};
+    SDL_Rect src = {0, 0, 2, 2};
+public:
     void draw() {
         SDL_Rect square = { this->x, this->y, 100, 100 };
-        SDL_SetRenderDrawColor(window.renderer, 0xFF, 0x00, 0x00, 0xFF);
+        SDL_SetRenderDrawColor(window.renderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderFillRect(window.renderer, &square);
+
+        SDL_Texture* texture = SDL_CreateTexture( window.renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, 2, 2 );
+        SDL_UpdateTexture(texture, &src, &imagedata, 2);
+        SDL_Rect dest = {this->x, this->y, 100, 100};
+        SDL_RenderCopy(window.renderer, texture, &src, &dest);
     }
 };
 
-Player guy = Player(100, 100);
+Player guy(100, 100);
 float count = 0.0f;
 
 void handleInput (){
@@ -49,8 +58,8 @@ void handleInput (){
 void prepareScreen(){
     SDL_SetRenderDrawColor(window.renderer, 96, 128, 255, 255);
     SDL_RenderClear(window.renderer);
-    
-    
+
+
 }
 
 void mainLoop(){
