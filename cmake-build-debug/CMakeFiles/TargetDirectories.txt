@@ -1,0 +1,6 @@
+/home/administrator/Documents/COSC-Game-Jam-2023/cmake-build-debug/CMakeFiles/COSC_Game_Jam_2023.dir
+/home/administrator/Documents/COSC-Game-Jam-2023/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/administrator/Documents/COSC-Game-Jam-2023/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/administrator/Documents/COSC-Game-Jam-2023/cmake-build-debug/libraries/BLT/CMakeFiles/BLT.dir
+/home/administrator/Documents/COSC-Game-Jam-2023/cmake-build-debug/libraries/BLT/CMakeFiles/edit_cache.dir
+/home/administrator/Documents/COSC-Game-Jam-2023/cmake-build-debug/libraries/BLT/CMakeFiles/rebuild_cache.dir
