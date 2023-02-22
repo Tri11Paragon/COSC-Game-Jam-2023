@@ -12,6 +12,24 @@
 
 Window window {};
 
+class Player {
+public:
+    int x;
+    int y;
+    Player(int x, int y) {
+        this->x = x;
+        this->y = y;
+    }
+    void draw() {
+        SDL_Rect square = { this->x, this->y, 100, 100 };
+        SDL_SetRenderDrawColor(window.renderer, 0xFF, 0x00, 0x00, 0xFF);
+        SDL_RenderFillRect(window.renderer, &square);
+    }
+};
+
+Player guy = Player(100, 100);
+float count = 0.0f;
+
 void handleInput (){
     SDL_Event event;
     
@@ -39,9 +57,10 @@ void mainLoop(){
     prepareScreen();
     handleInput();
 
-    SDL_Rect square = { 0, 0, 100, 100 };
-    SDL_SetRenderDrawColor(window.renderer, 0xFF, 0x00, 0x00, 0xFF);
-    SDL_RenderFillRect(window.renderer, &square);
+    guy.x = 50 * sin((float) count) + 100;
+    guy.y = 50 * cos((float) count) + 100;
+    count += 0.1f;
+    guy.draw();
 
     SDL_RenderPresent(window.renderer);
     
@@ -50,6 +69,7 @@ void mainLoop(){
 }
 
 int main() {
+
     auto logging_properties = blt::logging::LOG_PROPERTIES{true, true, true, "./"};
     logging_properties.m_logFullPath = true;
 
