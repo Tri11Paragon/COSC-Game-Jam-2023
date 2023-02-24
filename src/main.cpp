@@ -38,8 +38,8 @@ public:
         }
     }
     bool intersects(Object o) {
-        bool hcond = x + w > o.x || o.x + o.w > x;
-        bool vcond = y + h > o.h || o.y + o.h > y;
+        bool hcond = x + w > o.x && o.x + o.w > x;
+        bool vcond = y + h > o.y && o.y + o.h > y;
         return hcond && vcond;
     }
 };
@@ -59,9 +59,9 @@ public:
         else if (window.keyDown(SDLK_d))
             dx += 0.2f;
         if (window.keyDown(SDLK_w))
-            dy -= 0.2f;
-        else if (window.keyDown(SDLK_s))
-            dy += 0.2f;
+            dy = -8.0f;
+
+        dy += 0.4f; // Gravity
 
         x += dx;
         y += dy;
@@ -76,7 +76,7 @@ void init(){
     guy.setTexture("assets/winuz.png");
 }
 
-void mainLoop(){
+void mainLoop() {
     window.prepare();
     window.handleInput();
 
@@ -84,9 +84,16 @@ void mainLoop(){
 //    guy.y = 50 * cos((float) count) + 100;
 //    count += 0.1f;
     guy.move();
+    if (guy.intersects(a)) {
+        while (guy.intersects(a))
+            guy.y--;
+        guy.dy = 0;
+    }
     guy.draw();
     a.draw();
-    
+
+    std::cout << "dY: " << guy.dy << "\n";
+
     window.sync(1000.0 / 60.0);
     
     BLT_TRACE("Delta %f", Window::delta());
