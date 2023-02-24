@@ -10,44 +10,65 @@
 
 Window window {};
 
-class Player {
+class Object {
 public:
-    int x;
-    int y;
-    SDL_Rect src = {0, 0, 8, 8};
-    SDL_Rect dest;
+    float x, y;
+    int w, h;
     SDL_Texture* texture;
-    Player(int x, int y): x(x), y(y) { }
-    void setTexture() {
-        std::unique_ptr<image::Texture> t = image::loadImage("assets/winuz.png");
-//        this->surface = t->surface;
+    Object(float x, float y, int w, int h): x(x), y(y), w(x), h(h) { }
+    void setTexture(char* filePath) {
+        std::unique_ptr<image::Texture> t = image::loadImage(filePath);
         texture = SDL_CreateTextureFromSurface(window.renderer, t->surface);
 
 //        Uint32 rf = SDL_PIXELFORMAT_RGBA8888;
-        Uint32 f;
-        int *w, *h;
-        SDL_QueryTexture(texture, &f, NULL, w, h);
-        std::cerr << "Format: " << SDL_GetPixelFormatName(f);
-    }
-    void update() {
-        dest = {this->x, this->y, 100, 100};
+//        Uint32 f;
+//        int *w, *h;
+//        SDL_QueryTexture(texture, &f, NULL, w, h);
+//        std::cerr << "Format: " << SDL_GetPixelFormatName(f);
     }
     void draw() {
-//        SDL_Rect square = { this->x, this->y, 100, 100 };
-//        SDL_SetRenderDrawColor(window.renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-//        SDL_RenderFillRect(window.renderer, &square);
-
-        SDL_RenderCopy(window.renderer, texture, &src, &dest);
-//        SDL_blit(surface, &src, window.renderer, &dest);
+        SDL_Rect dest = {(int) x, (int) y, w, h};
+        if (texture == nullptr) {
+            SDL_SetRenderDrawColor(window.renderer, 0xAA, 0xAA, 0xAA, 0xFF);
+            SDL_RenderFillRect(window.renderer, &dest);
+        }
+        else {
+            SDL_Rect src = {0, 0, w, h};
+            SDL_RenderCopy(window.renderer, texture, &src, &dest);
+        }
     }
 };
 
-Player guy {100, 100};
+class Platform: public Object {
+public:
+    Platform(int x, int y, int w): Object(x, y, w, 10) { }
+};
+
+class Player: public Object{
+public:
+    float dx = 0.0f, dy = 0.0f;
+    Player(int x, int y): Object(x, y, 75, 75) { }
+    void move() {
+        if (window.keyDown(SDLK_a))
+            dx -= 0.2f;
+        else if (window.keyDown(SDLK_d))
+            dx += 0.2f;
+        if (window.keyDown(SDLK_w))
+            dy -= 0.2f;
+        else if (window.keyDown(SDLK_s))
+            dy += 0.2f;
+
+        x += dx;
+        y += dy;
+    }
+};
 
 float count = 0.0f;
+Player guy {100, 100};
+Platform a {100, 400, 300};
 
 void init(){
-    guy.setTexture();
+    guy.setTexture("assets/winuz.png");
 }
 
 void mainLoop(){
@@ -57,8 +78,9 @@ void mainLoop(){
 //    guy.x = 50 * sin((float) count) + 100;
 //    guy.y = 50 * cos((float) count) + 100;
 //    count += 0.1f;
-    guy.update();
+    guy.move();
     guy.draw();
+    a.draw();
     
     window.sync(1000.0 / 60.0);
     
