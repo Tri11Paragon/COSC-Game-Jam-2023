@@ -18,11 +18,9 @@ public:
     SDL_Rect dest;
     SDL_Texture* texture;
     Player(int x, int y): x(x), y(y) { }
-public:
     void setTexture() {
         SDL_Surface* surface = image::loadImage("assets/winuz.png")->surface;
         this->texture = SDL_CreateTextureFromSurface(window.renderer, surface);
-        std::cout << SDL_GetError();
     }
     void update() {
         dest = {this->x, this->y, 100, 100};
@@ -36,16 +34,16 @@ public:
         SDL_Texture* texture = SDL_CreateTexture( window.renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, 2, 2 );
         SDL_UpdateTexture(texture, &src, &imagedata, 2);
          */
-        SDL_RenderCopy(window.renderer, this->texture, &src, &dest);
+//        SDL_RenderCopy(window.renderer, this->texture, &src, &dest);
     }
 };
 
-Player guy(100, 100);
+Player guy {100, 100};
 
 float count = 0.0f;
 
 void init(){
-
+    guy.setTexture();
 }
 
 void mainLoop(){
