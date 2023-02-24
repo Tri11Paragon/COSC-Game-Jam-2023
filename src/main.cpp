@@ -19,22 +19,27 @@ public:
     SDL_Texture* texture;
     Player(int x, int y): x(x), y(y) { }
     void setTexture() {
-        SDL_Surface* surface = image::loadImage("assets/winuz.png")->surface;
-        this->texture = SDL_CreateTextureFromSurface(window.renderer, surface);
+        std::unique_ptr<image::Texture> t = image::loadImage("assets/winuz.png");
+//        this->surface = t->surface;
+        texture = SDL_CreateTextureFromSurface(window.renderer, t->surface);
+
+//        Uint32* f;
+//        int *w, *h;
+//        SDL_QueryTexture(texture, f, NULL, w, h);
+//        Uint32 af = *f;
+//        const char* s = SDL_GetPixelFormatName(af);
+//        std::cerr << "Format: " << s;
     }
     void update() {
         dest = {this->x, this->y, 100, 100};
     }
     void draw() {
-        SDL_Rect square = { this->x, this->y, 100, 100 };
-        SDL_SetRenderDrawColor(window.renderer, 0xFF, 0xFF, 0xFF, 0xFF);
-        SDL_RenderFillRect(window.renderer, &square);
+//        SDL_Rect square = { this->x, this->y, 100, 100 };
+//        SDL_SetRenderDrawColor(window.renderer, 0xFF, 0xFF, 0xFF, 0xFF);
+//        SDL_RenderFillRect(window.renderer, &square);
 
-        /*
-        SDL_Texture* texture = SDL_CreateTexture( window.renderer, SDL_PIXELFORMAT_RGBA32, SDL_TEXTUREACCESS_STATIC, 2, 2 );
-        SDL_UpdateTexture(texture, &src, &imagedata, 2);
-         */
-//        SDL_RenderCopy(window.renderer, this->texture, &src, &dest);
+        SDL_RenderCopy(window.renderer, texture, &src, &dest);
+//        SDL_blit(surface, &src, window.renderer, &dest);
     }
 };
 
