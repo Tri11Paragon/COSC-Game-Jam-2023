@@ -8,7 +8,7 @@
 
 std::unique_ptr<image::Texture> image::loadImage(const std::string& path) {
     int width,height,channels;
-    auto pixels = stbi_load(path.c_str(), &width, &height, &channels, 4);
+    auto pixels = stbi_load(path.c_str(), &width, &height, &channels, 0);
     
     int pitch = (width * channels + 3) & ~3;
     

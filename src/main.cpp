@@ -23,12 +23,11 @@ public:
 //        this->surface = t->surface;
         texture = SDL_CreateTextureFromSurface(window.renderer, t->surface);
 
-//        Uint32* f;
-//        int *w, *h;
-//        SDL_QueryTexture(texture, f, NULL, w, h);
-//        Uint32 af = *f;
-//        const char* s = SDL_GetPixelFormatName(af);
-//        std::cerr << "Format: " << s;
+//        Uint32 rf = SDL_PIXELFORMAT_RGBA8888;
+        Uint32 f;
+        int *w, *h;
+        SDL_QueryTexture(texture, &f, NULL, w, h);
+        std::cerr << "Format: " << SDL_GetPixelFormatName(f);
     }
     void update() {
         dest = {this->x, this->y, 100, 100};
