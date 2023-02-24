@@ -10,6 +10,45 @@
 
 Window window {};
 
+class Background {
+public:
+    int scroll = 0;
+    SDL_Rect src = {0, 0, 540, 180};
+    SDL_Rect dest;
+    SDL_Texture *bb, *back, *mid, *front;
+    void setScroll(int scroll) { this->scroll = scroll; }
+    void setMode(bool dark) { // false = light, true = dark
+        std::unique_ptr<image::Texture> t;
+        if (dark) {
+            t = image::loadImage("assets/dark_bg_backback.png");
+            bb = SDL_CreateTextureFromSurface(window.renderer, t->surface);
+            t = image::loadImage("assets/dark_bg_back.png");
+            back = SDL_CreateTextureFromSurface(window.renderer, t->surface);
+            t = image::loadImage("assets/dark_bg_mid.png");
+            mid = SDL_CreateTextureFromSurface(window.renderer, t->surface);
+            t = image::loadImage("assets/dark_bg_front.png");
+            front = SDL_CreateTextureFromSurface(window.renderer, t->surface);
+        }
+        else {
+            t = image::loadImage("assets/light_bg_backback.png");
+            bb = SDL_CreateTextureFromSurface(window.renderer, t->surface);
+            t = image::loadImage("assets/light_bg_back.png");
+            back = SDL_CreateTextureFromSurface(window.renderer, t->surface);
+            t = image::loadImage("assets/light_bg_mid.png");
+            mid = SDL_CreateTextureFromSurface(window.renderer, t->surface);
+            t = image::loadImage("assets/light_bg_front.png");
+            front = SDL_CreateTextureFromSurface(window.renderer, t->surface);
+        }
+    }
+    void draw() {
+        dest = {scroll, 0, 2160, 720};
+        SDL_RenderCopy(window.renderer, bb, &src, &dest);
+        SDL_RenderCopy(window.renderer, back, &src, &dest);
+        SDL_RenderCopy(window.renderer, mid, &src, &dest);
+        SDL_RenderCopy(window.renderer, front, &src, &dest);
+    }
+};
+
 class Object {
 public:
     float x, y;
@@ -71,28 +110,28 @@ public:
 float count = 0.0f;
 Player guy {100, 100};
 Platform a {100, 400, 300};
+Background bg;
 
 void init(){
-    guy.setTexture("assets/winuz.png");
+    guy.setTexture("assets/dark_player.png");
+    bg.setMode(true);
 }
 
 void mainLoop() {
     window.prepare();
     window.handleInput();
 
-//    guy.x = 50 * sin((float) count) + 100;
-//    guy.y = 50 * cos((float) count) + 100;
-//    count += 0.1f;
     guy.move();
     if (guy.intersects(a)) {
         while (guy.intersects(a))
             guy.y--;
         guy.dy = 0;
     }
+    bg.draw();
     guy.draw();
     a.draw();
 
-    std::cout << "dY: " << guy.dy << "\n";
+    std::cout << "w: " << guy.w << "\n";
 
     window.sync(1000.0 / 60.0);
     
