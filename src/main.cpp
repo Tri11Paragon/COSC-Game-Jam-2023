@@ -15,7 +15,7 @@ public:
     float x, y;
     int w, h;
     SDL_Texture* texture;
-    Object(float x, float y, int w, int h): x(x), y(y), w(x), h(h) { }
+    Object(float x, float y, int w, int h): x(x), y(y), w(w), h(h) { }
     void setTexture(char* filePath) {
         std::unique_ptr<image::Texture> t = image::loadImage(filePath);
         texture = SDL_CreateTextureFromSurface(window.renderer, t->surface);
@@ -36,6 +36,11 @@ public:
             SDL_Rect src = {0, 0, w, h};
             SDL_RenderCopy(window.renderer, texture, &src, &dest);
         }
+    }
+    bool intersects(Object o) {
+        bool hcond = x + w > o.x || o.x + o.w > x;
+        bool vcond = y + h > o.h || o.y + o.h > y;
+        return hcond && vcond;
     }
 };
 
