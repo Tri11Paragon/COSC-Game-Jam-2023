@@ -12,73 +12,57 @@ Window window {};
 
 class Background {
 public:
-    int scroll = 0;
+    int m_scroll = 0;
     SDL_Rect src = {0, 0, 540, 180};
     SDL_Rect dest;
-    SDL_Texture *bb, *back, *mid, *front;
-    void setScroll(int scroll) { this->scroll = scroll; }
+    std::unique_ptr<image::Texture> bb, back, mid, front;
+    void setScroll(int scroll) { this->m_scroll = scroll; }
     void setMode(bool dark) { // false = light, true = dark
         std::unique_ptr<image::Texture> t;
         if (dark) {
-            t = image::loadImage("assets/dark_bg_backback.png");
-            bb = SDL_CreateTextureFromSurface(window.renderer, t->surface);
-            t = image::loadImage("assets/dark_bg_back.png");
-            back = SDL_CreateTextureFromSurface(window.renderer, t->surface);
-            t = image::loadImage("assets/dark_bg_mid.png");
-            mid = SDL_CreateTextureFromSurface(window.renderer, t->surface);
-            t = image::loadImage("assets/dark_bg_front.png");
-            front = SDL_CreateTextureFromSurface(window.renderer, t->surface);
-        }
-        else {
-            t = image::loadImage("assets/light_bg_backback.png");
-            bb = SDL_CreateTextureFromSurface(window.renderer, t->surface);
-            t = image::loadImage("assets/light_bg_back.png");
-            back = SDL_CreateTextureFromSurface(window.renderer, t->surface);
-            t = image::loadImage("assets/light_bg_mid.png");
-            mid = SDL_CreateTextureFromSurface(window.renderer, t->surface);
-            t = image::loadImage("assets/light_bg_front.png");
-            front = SDL_CreateTextureFromSurface(window.renderer, t->surface);
+            bb = image::loadImage("assets/dark_bg_backback.png");
+            back = image::loadImage("assets/dark_bg_back.png");
+            mid = image::loadImage("assets/dark_bg_mid.png");
+            front = image::loadImage("assets/dark_bg_front.png");
+        } else {
+            bb = image::loadImage("assets/light_bg_backback.png");
+            back = image::loadImage("assets/light_bg_back.png");
+            mid = image::loadImage("assets/light_bg_mid.png");
+            front = image::loadImage("assets/light_bg_front.png");
         }
     }
     void draw() {
-        dest = {scroll, 0, 2160, 720};
-        SDL_RenderCopy(window.renderer, bb, &src, &dest);
-        SDL_RenderCopy(window.renderer, back, &src, &dest);
-        SDL_RenderCopy(window.renderer, mid, &src, &dest);
-        SDL_RenderCopy(window.renderer, front, &src, &dest);
+        dest = {m_scroll, 0, 2160, 720};
+        SDL_RenderCopy(window.renderer, bb->texture, &src, &dest);
+        SDL_RenderCopy(window.renderer, back->texture, &src, &dest);
+        SDL_RenderCopy(window.renderer, mid->texture, &src, &dest);
+        SDL_RenderCopy(window.renderer, front->texture, &src, &dest);
     }
 };
 
 class Object {
 public:
     float x, y;
-    int w, h;
-    SDL_Texture* texture;
-    Object(float x, float y, int w, int h): x(x), y(y), w(w), h(h) { }
-    void setTexture(char* filePath) {
-        std::unique_ptr<image::Texture> t = image::loadImage(filePath);
-        texture = SDL_CreateTextureFromSurface(window.renderer, t->surface);
-
-//        Uint32 rf = SDL_PIXELFORMAT_RGBA8888;
-//        Uint32 f;
-//        int *w, *h;
-//        SDL_QueryTexture(texture, &f, NULL, w, h);
-//        std::cerr << "Format: " << SDL_GetPixelFormatName(f);
+    float w, h;
+    std::unique_ptr<image::Texture> texture = nullptr;
+    Object(float x, float y, float w, float h): x(x), y(y), w(w), h(h) { }
+    void setTexture(const std::string& filePath) {
+        texture = image::loadImage(filePath);
     }
-    void draw() {
-        SDL_Rect dest = {(int) x, (int) y, w, h};
+    void draw() const {
+        SDL_Rect dest = {(int) x, (int) y, (int) w, (int) h};
         if (texture == nullptr) {
             SDL_SetRenderDrawColor(window.renderer, 0xAA, 0xAA, 0xAA, 0xFF);
             SDL_RenderFillRect(window.renderer, &dest);
         }
         else {
-            SDL_Rect src = {0, 0, w, h};
-            SDL_RenderCopy(window.renderer, texture, &src, &dest);
+            SDL_Rect src = {0, 0, (int)w, (int)h};
+            SDL_RenderCopy(window.renderer, texture->texture, &src, &dest);
         }
     }
-    bool intersects(Object o) {
-        bool hcond = x + w > o.x && o.x + o.w > x;
-        bool vcond = y + h > o.y && o.y + o.h > y;
+    [[nodiscard]] bool intersects(const Object& o) const {
+        bool hcond = x + (float)w > o.x && o.x + (float)o.w > x;
+        bool vcond = y + (float)h > o.y && o.y + (float)o.h > y;
         return hcond && vcond;
     }
 };
@@ -91,13 +75,13 @@ public:
 class Player: public Object{
 public:
     float dx = 0.0f, dy = 0.0f;
-    Player(int x, int y): Object(x, y, 75, 75) { }
+    Player(float x, float y): Object(x, y, 75, 75) { }
     void move() {
-        if (window.keyDown(SDLK_a))
+        if (Window::keyDown(SDLK_a))
             dx -= 0.2f;
-        else if (window.keyDown(SDLK_d))
+        else if (Window::keyDown(SDLK_d))
             dx += 0.2f;
-        if (window.keyDown(SDLK_w))
+        if (Window::keyDown(SDLK_w))
             dy = -8.0f;
 
         dy += 0.4f; // Gravity

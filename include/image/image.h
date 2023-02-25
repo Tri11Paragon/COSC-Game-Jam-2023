@@ -9,29 +9,22 @@
 #include <SDL2/SDL.h>
 #include <string>
 #include <memory>
+#include <window.h>
 
 namespace image {
     
     struct Texture {
         SDL_Surface* surface;
+        SDL_Texture* texture;
         
-        Texture(SDL_Surface* surface, unsigned char* data): data(data), surface(surface) {}
+        Texture(SDL_Surface* surface, unsigned char* data): data(data), surface(surface) {
+            texture = SDL_CreateTextureFromSurface(window.renderer, surface);
+        }
         
         ~Texture() {
+            SDL_DestroyTexture(texture);
             SDL_FreeSurface(surface);
             stbi_image_free(data);
-        }
-        
-        inline SDL_Surface* operator()() const {
-            return surface;
-        }
-        
-        inline SDL_Surface* operator*() const {
-            return surface;
-        }
-        
-        inline SDL_Surface& operator->() const {
-            return *surface;
         }
         
         private:

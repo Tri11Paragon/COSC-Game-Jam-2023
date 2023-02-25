@@ -7,7 +7,7 @@
 #include <blt/std/logging.h>
 
 std::unique_ptr<image::Texture> image::loadImage(const std::string& path) {
-    int width,height,channels;
+    int width, height, channels;
     auto pixels = stbi_load(path.c_str(), &width, &height, &channels, 0);
     
     int pitch = (width * channels + 3) & ~3;
@@ -29,7 +29,9 @@ std::unique_ptr<image::Texture> image::loadImage(const std::string& path) {
     SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(pixels, width, height, channels*8, pitch, Rmask, Gmask, Bmask, Amask);
     
     if (!surface) {
-        BLT_WARN("Unable to load texture!\n\tData will be deleted and null returned!");
+        BLT_ERROR("Unable to load texture! (%d, %d, %d)", width, height, channels);
+        BLT_ERROR("Data will be deleted and null returned! (Texture: %s)", path.c_str());
+        BLT_ERROR("SDL ERROR: %s", SDL_GetError());
         stbi_image_free(pixels);
         return nullptr;
     }
