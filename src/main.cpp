@@ -180,10 +180,10 @@ void mainLoop() {
         return p.x + p.w + 10 < 0;
     }), platforms.end());
     
+    int width, height;
+    SDL_GetWindowSize(window.window, &width, &height);
+    
     if (platforms.size() < 5){
-        int width, height;
-        SDL_GetWindowSize(window.window, &width, &height);
-        
         const auto& p = platforms[platforms.size()-1];
         float newX = p.x + p.w + widthGenerator.get();
         float newY = (float)height / 2.0f + heightGenerator.get();
@@ -196,8 +196,9 @@ void mainLoop() {
     }
     guy.draw();
     
-    if (guy.y < -guy.h) {
+    if (guy.y > (float)height + guy.h * 2) {
         // guy has fallen
+        
         window.running = false;
     } else {
         aliveTime += Window::deltaSeconds() * 100;
