@@ -44,7 +44,8 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/assets DESTINATION ${CMAKE_CURRENT_BINARY_
 target_link_libraries(COSC_Game_Jam_2023 BLT)
 
 if (USE_EXTRAS)
-    set_target_properties(COSC_Game_Jam_2023 PROPERTIES LINK_FLAGS "-sMAX_WEBGL_VERSION=2 -s ASSERTIONS=1 -sUSE_SDL=2 --preload-file 'assets'")
+    set_target_properties(COSC_Game_Jam_2023 PROPERTIES LINK_FLAGS "-s DEMANGLE_SUPPORT=1 -sMAX_WEBGL_VERSION=2 -s ASSERTIONS=1 -sUSE_SDL=2 --preload-file 'assets'")
+    set_target_properties(COSC_Game_Jam_2023 PROPERTIES COMPILE_FLAGS "-sUSE_SDL=2")
 else()
     target_link_libraries(COSC_Game_Jam_2023 ${SDL2_LIBRARIES})
 endif()

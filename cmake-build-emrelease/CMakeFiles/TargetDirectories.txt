@@ -1,0 +1,6 @@
+/home/brett/Documents/code/c++/COSC-Game-Jam-2023/cmake-build-emrelease/CMakeFiles/COSC_Game_Jam_2023.dir
+/home/brett/Documents/code/c++/COSC-Game-Jam-2023/cmake-build-emrelease/CMakeFiles/edit_cache.dir
+/home/brett/Documents/code/c++/COSC-Game-Jam-2023/cmake-build-emrelease/CMakeFiles/rebuild_cache.dir
+/home/brett/Documents/code/c++/COSC-Game-Jam-2023/cmake-build-emrelease/libraries/BLT/CMakeFiles/BLT.dir
+/home/brett/Documents/code/c++/COSC-Game-Jam-2023/cmake-build-emrelease/libraries/BLT/CMakeFiles/edit_cache.dir
+/home/brett/Documents/code/c++/COSC-Game-Jam-2023/cmake-build-emrelease/libraries/BLT/CMakeFiles/rebuild_cache.dir

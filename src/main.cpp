@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include "image/image.h"
+#include <blt/std/time.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -153,12 +154,14 @@ void init() {
     platforms.emplace_back(100, 400, 300);
 }
 
-blt::random<float> sizeGenerator(65, 300);
-blt::random<float> widthGenerator(55, 145);
-blt::random<float> heightGenerator(-200, 200);
+blt::random<float> sizeGenerator(65, 300, blt::system::getCurrentTimeNanoseconds());
+blt::random<float> widthGenerator(55, 145, blt::system::getCurrentTimeNanoseconds());
+blt::random<float> heightGenerator(-200, 200, blt::system::getCurrentTimeNanoseconds());
 
 
 void mainLoop() {
+    if (!window.running)
+        return;
     window.prepare();
     window.handleInput();
     
@@ -195,6 +198,7 @@ void mainLoop() {
     
     if (guy.y < -guy.h) {
         // guy has fallen
+        window.running = false;
     } else {
         aliveTime += Window::deltaSeconds() * 100;
     }

@@ -1,0 +1,1 @@
+/usr/bin/em++ -O3 -DNDEBUG -s DEMANGLE_SUPPORT=1 -sMAX_WEBGL_VERSION=2 -s ASSERTIONS=1 -sUSE_SDL=2 --preload-file 'assets' @CMakeFiles/COSC_Game_Jam_2023.dir/objects1 -o COSC_Game_Jam_2023.js @CMakeFiles/COSC_Game_Jam_2023.dir/linkLibs.rsp
