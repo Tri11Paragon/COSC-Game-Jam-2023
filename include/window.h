@@ -13,7 +13,7 @@ class IMouseEventListener;
 struct Window {
     int WIDTH = 1440;
     int HEIGHT = 720;
-    int scroll = 0;
+    float scroll = 0;
     bool running = true;
     SDL_Renderer* renderer = nullptr;
     SDL_Window* window = nullptr;

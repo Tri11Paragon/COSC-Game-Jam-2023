@@ -1,7 +1,10 @@
 #include <iostream>
 #include <blt/std/logging.h>
+#include <blt/std/random.h>
 
 #include <window.h>
+#include <vector>
+#include <algorithm>
 #include "image/image.h"
 
 #ifdef __EMSCRIPTEN__
@@ -32,7 +35,7 @@ class Background {
         }
         
         void draw() {
-            dest = {window.scroll, 0, 2160, 720};
+            dest = {0, 0, 2160, 720};
             SDL_RenderCopy(window.renderer, bb->texture, &src, &dest);
             SDL_RenderCopy(window.renderer, back->texture, &src, &dest);
             SDL_RenderCopy(window.renderer, mid->texture, &src, &dest);
@@ -44,6 +47,7 @@ class Object {
     public:
         float x, y;
         float w, h;
+        bool scrolls = true;
         std::unique_ptr<image::Texture> texture = nullptr;
         
         Object(float x, float y, float w, float h): x(x), y(y), w(w), h(h) {}
@@ -52,8 +56,8 @@ class Object {
             texture = image::loadImage(filePath);
         }
         
-        void draw() const {
-            SDL_Rect dest = {(int) x, (int) y, (int) w, (int) h};
+        void draw() {
+            SDL_Rect dest = {(int) (x), (int) y, (int) w, (int) h};
             if (texture == nullptr) {
                 SDL_SetRenderDrawColor(window.renderer, 0xAA, 0xAA, 0xAA, 0xFF);
                 SDL_RenderFillRect(window.renderer, &dest);
@@ -61,11 +65,13 @@ class Object {
                 SDL_Rect src = {0, 0, (int) w, (int) h};
                 SDL_RenderCopy(window.renderer, texture->texture, &src, &dest);
             }
+            x -= (float)(scrolls ? Window::deltaSeconds() * 189 : 0);
         }
         
         [[nodiscard]] bool intersects(const Object& o) const {
+            float ny = y + 5;
             bool hcond = x + (float) w > o.x && o.x + (float) o.w > x;
-            bool vcond = y + (float) h > o.y && o.y + (float) o.h > y;
+            bool vcond = ny + (float) h > o.y && o.y + (float) o.h > ny;
             return hcond && vcond;
         }
 };
@@ -80,30 +86,35 @@ class Player : public Object {
         float dx = 0.0f, dy = 0.0f;
         bool jump = false;
         
-        Player(float x, float y): Object(x, y, 75, 75) {}
+        Player(float x, float y): Object(x, y, 75, 75) {
+            scrolls = false;
+        }
         
-        void move() {
+        void update() {
             const float jump_speed = 55;
             const float move_speed = 25;
             const float gravity = 9.8;
-            
+    
             if (Window::keyDown(SDLK_a))
                 dx -= 0.2f * move_speed;
             else if (Window::keyDown(SDLK_d))
                 dx += 0.2f * move_speed;
+            
             if (Window::keyDown(SDLK_SPACE) && !jump) {
                 dy = -8.0f * jump_speed;
                 jump = true;
             }
-            
+    
             dy += gravity; // Gravity
-            
+        }
+        
+        void move() {
             x += (float)(dx * Window::deltaSeconds());
             y += (float)(dy * Window::deltaSeconds());
         }
         
-        bool intersects(const Object& o) {
-            bool cond = Object::intersects(o);
+        [[nodiscard]] bool intersects(const Object& o) {
+            auto cond = Object::intersects(o);
             if (cond)
                 jump = false;
             return cond;
@@ -112,29 +123,58 @@ class Player : public Object {
 
 float count = 0.0f;
 Player guy{100, 100};
-Platform a{100, 400, 300};
+
+std::vector<Platform> platforms{};
 Background bg;
 
 void init() {
     guy.setTexture("assets/dark_player.png");
     bg.setMode(true);
+    platforms.emplace_back(100, 400, 300);
 }
+
+blt::random<float> sizeGenerator(65, 300);
+blt::random<float> widthGenerator(55, 145);
+blt::random<float> heightGenerator(-200, 200);
+
 
 void mainLoop() {
     window.prepare();
     window.handleInput();
     
-    guy.move();
-    if (guy.intersects(a)) {
-        while (guy.intersects(a))
-            guy.y -= (float)(1.0 * Window::deltaSeconds());
-        guy.dy = 0;
-    }
+    guy.update();
     bg.draw();
+    for (auto& platform : platforms) {
+        if (guy.intersects(platform)) {
+            if (guy.dy > 0)
+                guy.dy = 0;
+        }
+        platform.draw();
+    }
+    guy.move();
+    
+    platforms.erase(std::remove_if(platforms.begin(), platforms.end(), [](const Platform& p) -> bool {
+        return p.x + p.w + 10 < 0;
+    }), platforms.end());
+    
+    if (platforms.size() < 5){
+        int width, height;
+        SDL_GetWindowSize(window.window, &width, &height);
+        
+        const auto& p = platforms[platforms.size()-1];
+        float newX = p.x + p.w + widthGenerator.get();
+        float newY = (float)height / 2.0f + heightGenerator.get();
+        if (newY < 0)
+            newY = 0;
+        if (newY > (float)height)
+            newY = (float)height - 55;
+        
+        platforms.emplace_back((int)newX, (int)newY, (int)sizeGenerator.get());
+    }
     guy.draw();
-    a.draw();
     
     
+    window.scroll -= (float) Window::deltaSeconds() * 25;
     window.sync(1000.0 / 60.0);
 
 //    BLT_TRACE("Delta %f", Window::delta());
