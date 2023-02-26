@@ -90,15 +90,34 @@ class Player : public Object {
             scrolls = false;
         }
         
+        double time = 0;
+        
+        static double easeInOutCubic(double x) {
+            return x < 0.5 ? 4 * x * x * x : 1 - pow(-2 * x + 2, 3) / 2;
+        }
+        
+        static double blend(float min, float max, double modifier) {
+            double difference = max - min;
+            return min + difference * (modifier > 1 ? 1 : modifier);
+        }
+        
         void update() {
             const float jump_speed = 55;
-            const float move_speed = 25;
+            const float move_speed_min = 100;
+            const float move_speed_max = 300;
             const float gravity = 9.8;
     
-            if (Window::keyDown(SDLK_a))
-                dx -= 0.2f * move_speed;
-            else if (Window::keyDown(SDLK_d))
-                dx += 0.2f * move_speed;
+            auto blended = blend(move_speed_min, move_speed_max, easeInOutCubic(time));
+            
+            if (Window::keyDown(SDLK_a)) {
+                x -= (float) (blended * Window::deltaSeconds());
+                time += Window::deltaSeconds();
+            }
+            else if (Window::keyDown(SDLK_d)) {
+                x += (float) (blended * Window::deltaSeconds());
+                time += Window::deltaSeconds();
+            } else
+                time = 0;
             
             if (Window::keyDown(SDLK_SPACE) && !jump) {
                 dy = -8.0f * jump_speed;
@@ -122,6 +141,7 @@ class Player : public Object {
 };
 
 float count = 0.0f;
+double aliveTime = 0;
 Player guy{100, 100};
 
 std::vector<Platform> platforms{};
@@ -173,10 +193,21 @@ void mainLoop() {
     }
     guy.draw();
     
+    if (guy.y < -guy.h) {
+        // guy has fallen
+    } else {
+        aliveTime += Window::deltaSeconds() * 100;
+    }
+    
     
     window.scroll -= (float) Window::deltaSeconds() * 25;
     window.sync(1000.0 / 60.0);
-
+    
+    std::string title = "FPS ";
+    title += std::to_string(1000 / Window::delta());
+    title += " | Score: ";
+    title += std::to_string((int)aliveTime);
+    SDL_SetWindowTitle(window.window, title.c_str());
 //    BLT_TRACE("Delta %f", Window::delta());
 }
 
